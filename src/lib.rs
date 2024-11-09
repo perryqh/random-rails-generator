@@ -20,7 +20,12 @@ impl Config {
 }
 
 fn random_name() -> String {
-    rand::random::<FirstName>().to_string().to_case(Case::Snake).chars().filter(|c| c.is_alphanumeric() || *c == '_').collect::<String>()
+    rand::random::<FirstName>()
+        .to_string()
+        .to_case(Case::Snake)
+        .chars()
+        .filter(|c| c.is_alphanumeric() || *c == '_')
+        .collect::<String>()
 }
 
 fn packages(num: &usize) -> Vec<String> {
@@ -118,7 +123,7 @@ fn write_code_file(
     if annotate {
         file_contents.push_str(&format!("# @team {}\n", team));
     }
-    file_contents.push_str(&format!("class {}\nend\n", name));
+    file_contents.push_str(&format!("class {}\n{}\nend\n", name, FILE_CONTENTS));
 
     Ok(std::fs::write(file_path, file_contents)?)
 }
@@ -127,6 +132,36 @@ const CODE_DIRECTORIES: &[&str] = &[
     "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
     "t", "u", "v", "w", "x", "y", "z",
 ];
+
+const FILE_CONTENTS: &str = "
+  def method_1
+    puts 'hello'
+  end  
+
+  def method_2
+      puts 'hello 2'
+  end
+
+  def method_3
+     puts 'met'
+  end
+
+  The borrow checker is an essential feature of the Rust language and part of what makes Rust Rust. It helps you (or forces you) to manage ownership. As chapter four of “The Rust Programming Language” puts it, “Ownership is Rust’s most unique feature, and it enables Rust to make memory safety guarantees without needing a garbage collector.”
+
+In the last few sentences, we’ve mentioned ownership, borrow checker, and garbage collectors. There’s a lot to unpack there, so let’s break it down a bit. In this guide, we’ll look at what the borrow checker does for us (and what it stops us from doing), what guarantees it gives us, and how it compares to other forms of memory management.
+
+I’ll assume that you have some experience writing code in higher-level languages such as Python, JavaScript, and C#, but not necessarily that you’re familiar with how computer memory works.
+
+Your programs have access to two kinds of memory where they can store values: the stack and the heap. These differ in several ways, but for our sake, the most important difference is that data stored on the stack must have a known, fixed size. Data on the heap can be of any arbitrary size.
+
+What do I mean by size? Size refers to how many bytes it takes to store the data. In broad terms, certain data types, such as Booleans, characters, and integers, have a fixed size. These are easy to put on the stack. On the other hand, data types such as strings, lists, and other collections can be of any arbitrary size. As such, they cannot be stored on the stack. We must instead use the heap.
+
+Because data of arbitrary size can be stored on the heap, the computer needs to find a chunk of memory large enough to fit whatever we’re looking to store. This is time-consuming, and the program doesn’t have direct access to the data as with the stack. Instead, it’s left with a pointer to where the data is stored.
+
+A pointer is pretty much what it says on the tin: it points to some memory address on the heap where the data you’re looking for can be found. There are several pointer tutorials available on the web, and which one works for you depends on your background.
+
+What’s the point of having these two different memory stores? Because of the way the stack works, data access on the stack is fast and easy but requires the data to conform to certain standards. The heap is slower but more versatile and is thus useful when you can’t use the stack.
+";
 
 const DEFAULT_CODE_OWNERSHIP_YML: &str = "
 ---
@@ -166,6 +201,13 @@ owned_globs:
 - config/puma.rb
 - config/routes.rb
 - config/storage.yml
+- config/cache.yml
+- config/deploy.yml
+- config/queue.yml
+- config/recurring.yml- config/cache.yml
+- config/deploy.yml
+- config/queue.yml
+- config/recurring.yml
 
 ";
 
@@ -225,7 +267,10 @@ enum TeamSetupResult {
     AlreadyExists,
 }
 
-fn setup_team_directory(pack_config: &PackConfig, team_name: &str) -> anyhow::Result<TeamSetupResult> {
+fn setup_team_directory(
+    pack_config: &PackConfig,
+    team_name: &str,
+) -> anyhow::Result<TeamSetupResult> {
     let team_dir = pack_config
         .config
         .app_dir()

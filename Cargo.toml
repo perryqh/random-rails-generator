@@ -1,0 +1,11 @@
+[package]
+name = "random-rails-generator"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.93"
+convert_case = "0.6.0"
+faker_rand = "0.1.1"
+rand = "0.8.5"
+tempfile = "3.14.0"
